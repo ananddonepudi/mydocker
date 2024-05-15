@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18 
+    commands:
+      - echo Installing Something...
+      
+  pre_build:
+    commands:
+      - echo Its prebuild Phase...
+     
+  build:
+    commands:
+      - echo Build started on 'date'
+      - echo Compiling the Node.js code
+      - grep -Fq "Congratulations" index.html
+  post_build:
+    commands:
+      - echo Build completed on 'date'
