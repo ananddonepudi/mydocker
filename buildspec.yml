@@ -1,21 +1,25 @@
 version: 0.2
-
 phases:
-  install:
-    runtime-versions:
-      nodejs: 18 
-    commands:
-      - echo Installing Something...
-      
+
+
   pre_build:
     commands:
       - echo Its prebuild Phase...
-     
+      - REPOSITORY_DOMAIN_NAME=$(echo $AWS_ACCOUNT_ID'.dkr.ecr.'$AWS_DEFAULT_REGION'.amazonaws.com')
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 344249396000.dkr.ecr.ap-south-1.amazonaws.com
+      - echo $REPOSITORY_DOMAIN_NAME
+      - REPOSITORY_URI=$(echo $REPOSITORY_DOMAIN_NAME'/'$IMAGE_REPO_NAME)
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo $REPOSITORY_URI
+      - echo $IMAGE_TAG
   build:
     commands:
       - echo Build started on 'date'
-      - echo Compiling the Node.js code
-      - grep -Fq "Congratulations" index.html
+      - docker build -t mydocker .
+      - docker tag mydocker:latest 344249396000.dkr.ecr.ap-south-1.amazonaws.com/mydocker:latest
   post_build:
     commands:
-      - echo Build completed on 'date'
+      - docker push 344249396000.dkr.ecr.ap-south-1.amazonaws.com/mydocker:latest
+artifacts:
+  files: imagedefinitions.json
